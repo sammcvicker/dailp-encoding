@@ -29,8 +29,8 @@ async fn main() -> Result<()> {
 
     let db = Database::connect(Some(1))?;
 
-    // println!("Migrating Image Sources...");
-    // migrate_image_sources(&db).await?;
+    println!("Migrating Image Sources...");
+    migrate_image_sources(&db).await?;
 
     println!("Migrating contributors...");
     contributors::migrate_all(&db).await?;
