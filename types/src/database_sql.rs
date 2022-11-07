@@ -36,8 +36,8 @@ impl Database {
             .max_connections(num_connections.unwrap_or_else(|| {
                 std::thread::available_parallelism().map_or(2, |x| x.get() as u32)
             }))
-            // .acquire_timeout(Duration::from_secs(60 * 8))
-            // .idle_timeout(Duration::from_secs(60 * 8))
+            .acquire_timeout(Duration::from_secs(60 * 8))
+            .max_lifetime(Duration::from_secs(60 * 20))
             // Disable excessive pings to the database.
             .test_before_acquire(false)
             .connect_lazy(&db_url)?;
