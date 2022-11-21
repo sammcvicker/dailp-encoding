@@ -23,6 +23,7 @@ in {
     ./nu-tags.nix
     ./database-sql.nix
     ./bastion-host.nix
+    ./ci-runner.nix
   ];
 
   # Gives all modules access to which stage we're deploying to, while also
