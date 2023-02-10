@@ -19,4 +19,18 @@
         sse_algorithm = "AES256";
       };
   };
+
+  # Allow lambda functions to access the media storage bucket.
+  config.resource.aws_iam_role_policy.media_storage_access = {
+    name = "dailp-${config.setup.stage}-media-storage-access";
+    role = "\${aws_iam_role.lambda_exec.id}";
+    policy = builtins.toJSON {
+      Version = "2012-10-17";
+      Statement = [{
+        Action = [ "s3:*" ];
+        Effect = "Allow";
+        Resource = "\${aws_s3_bucket.media_storage.arn}";
+      }];
+    };
+  };
 }
