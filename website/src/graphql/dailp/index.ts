@@ -421,6 +421,7 @@ export type DocumentCollection = {
  * All fields except id are optional.
  */
 export type DocumentMetadataUpdate = {
+  readonly genre: InputMaybe<Scalars["String"]>
   readonly id: Scalars["UUID"]
   readonly title: InputMaybe<Scalars["String"]>
   readonly writtenAt: InputMaybe<DateInput>
@@ -652,7 +653,7 @@ export type Mutation = {
   readonly updateAnnotation: Scalars["Boolean"]
   /** Mutation for adding/changing contributor attributions */
   readonly updateContributorAttribution: Scalars["UUID"]
-  readonly updateDocumentMetadata: Scalars["UUID"]
+  readonly updateDocumentMetadata: AnnotatedDoc
   readonly updatePage: Scalars["Boolean"]
   /** Mutation for paragraph and translation editing */
   readonly updateParagraph: DocumentParagraph
@@ -800,7 +801,7 @@ export type Query = {
   /** Retrieves a chapter and its contents by its collection and chapter slug. */
   readonly chapter: Maybe<CollectionChapter>
   readonly collection: DocumentCollection
-  /** Retrieves a full document from its unique name. */
+  /** Retrieves a full document from its unique name (the slug). */
   readonly document: Maybe<AnnotatedDoc>
   /** Retrieves a full document from its unique identifier. */
   readonly documentByUuid: Maybe<AnnotatedDoc>
@@ -1023,7 +1024,7 @@ export type AnnotatedDocumentQuery = { readonly __typename?: "Query" } & {
   readonly document: Maybe<
     { readonly __typename?: "AnnotatedDoc" } & Pick<
       AnnotatedDoc,
-      "id" | "title" | "slug" | "isReference"
+      "id" | "title" | "slug" | "isReference" | "genre"
     > & {
         readonly date: Maybe<
           { readonly __typename?: "Date" } & Pick<Date, "year">
@@ -1072,7 +1073,7 @@ export type AnnotatedDocumentByIdQuery = { readonly __typename?: "Query" } & {
   readonly documentByUuid: Maybe<
     { readonly __typename?: "AnnotatedDoc" } & Pick<
       AnnotatedDoc,
-      "id" | "title" | "slug" | "isReference"
+      "id" | "title" | "slug" | "isReference" | "genre"
     > & {
         readonly date: Maybe<
           { readonly __typename?: "Date" } & Pick<Date, "year">
@@ -1315,7 +1316,7 @@ export type AudioSliceFieldsFragment = {
 
 export type DocFormFieldsFragment = {
   readonly __typename?: "AnnotatedDoc"
-} & Pick<AnnotatedDoc, "id" | "title"> & {
+} & Pick<AnnotatedDoc, "id" | "title" | "genre"> & {
     readonly date: Maybe<
       { readonly __typename?: "Date" } & Pick<Date, "day" | "month" | "year">
     >
@@ -1545,7 +1546,7 @@ export type DocumentDetailsQuery = { readonly __typename?: "Query" } & {
   readonly document: Maybe<
     { readonly __typename?: "AnnotatedDoc" } & Pick<
       AnnotatedDoc,
-      "id" | "slug" | "title"
+      "id" | "slug" | "title" | "genre"
     > & {
         readonly date: Maybe<
           { readonly __typename?: "Date" } & Pick<Date, "year">
@@ -1755,7 +1756,7 @@ export type CollectionChapterQuery = { readonly __typename?: "Query" } & {
         readonly document: Maybe<
           { readonly __typename?: "AnnotatedDoc" } & Pick<
             AnnotatedDoc,
-            "id" | "title" | "slug" | "isReference"
+            "id" | "title" | "slug" | "isReference" | "genre"
           > & {
               readonly date: Maybe<
                 { readonly __typename?: "Date" } & Pick<Date, "year">
@@ -2077,7 +2078,7 @@ export type AddBookmarkMutationVariables = Exact<{
 export type AddBookmarkMutation = { readonly __typename?: "Mutation" } & {
   readonly addBookmark: { readonly __typename?: "AnnotatedDoc" } & Pick<
     AnnotatedDoc,
-    "id" | "title" | "slug" | "isReference"
+    "id" | "title" | "slug" | "isReference" | "genre"
   > & {
       readonly date: Maybe<
         { readonly __typename?: "Date" } & Pick<Date, "year">
@@ -2196,7 +2197,47 @@ export type UpdateDocumentMetadataMutationVariables = Exact<{
 
 export type UpdateDocumentMetadataMutation = {
   readonly __typename?: "Mutation"
-} & Pick<Mutation, "updateDocumentMetadata">
+} & {
+  readonly updateDocumentMetadata: {
+    readonly __typename?: "AnnotatedDoc"
+  } & Pick<AnnotatedDoc, "id" | "title" | "slug" | "isReference" | "genre"> & {
+      readonly date: Maybe<
+        { readonly __typename?: "Date" } & Pick<Date, "year">
+      >
+      readonly bookmarkedOn: Maybe<
+        { readonly __typename?: "Date" } & Pick<Date, "formattedDate">
+      >
+      readonly sources: ReadonlyArray<
+        { readonly __typename?: "SourceAttribution" } & Pick<
+          SourceAttribution,
+          "name" | "link"
+        >
+      >
+      readonly audioRecording: Maybe<
+        { readonly __typename?: "AudioSlice" } & Pick<
+          AudioSlice,
+          "resourceUrl" | "startTime" | "endTime"
+        >
+      >
+      readonly translatedPages: Maybe<
+        ReadonlyArray<
+          { readonly __typename?: "DocumentPage" } & {
+            readonly image: Maybe<
+              { readonly __typename?: "PageImage" } & Pick<PageImage, "url">
+            >
+          }
+        >
+      >
+      readonly chapters: Maybe<
+        ReadonlyArray<
+          { readonly __typename?: "CollectionChapter" } & Pick<
+            CollectionChapter,
+            "path"
+          >
+        >
+      >
+    }
+}
 
 export type PostCommentMutationVariables = Exact<{
   input: PostCommentInput
@@ -2262,6 +2303,7 @@ export const DocFormFieldsFragmentDoc = gql`
       month
       year
     }
+    genre
   }
 `
 export const AudioSliceFieldsFragmentDoc = gql`
@@ -2377,6 +2419,7 @@ export const AnnotatedDocumentDocument = gql`
       title
       slug
       isReference
+      genre
       date {
         year
       }
@@ -2418,6 +2461,7 @@ export const AnnotatedDocumentByIdDocument = gql`
       title
       slug
       isReference
+      genre
       date {
         year
       }
@@ -2673,6 +2717,7 @@ export const DocumentDetailsDocument = gql`
       id
       slug
       title
+      genre
       date {
         year
       }
@@ -2844,6 +2889,7 @@ export const CollectionChapterDocument = gql`
         title
         slug
         isReference
+        genre
         date {
           year
         }
@@ -3031,6 +3077,7 @@ export const AddBookmarkDocument = gql`
       title
       slug
       isReference
+      genre
       date {
         year
       }
@@ -3149,7 +3196,36 @@ export function useDeleteContributorAttributionMutation() {
 }
 export const UpdateDocumentMetadataDocument = gql`
   mutation UpdateDocumentMetadata($document: DocumentMetadataUpdate!) {
-    updateDocumentMetadata(document: $document)
+    updateDocumentMetadata(document: $document) {
+      id
+      title
+      slug
+      isReference
+      genre
+      date {
+        year
+      }
+      bookmarkedOn {
+        formattedDate
+      }
+      sources {
+        name
+        link
+      }
+      audioRecording {
+        resourceUrl
+        startTime
+        endTime
+      }
+      translatedPages {
+        image {
+          url
+        }
+      }
+      chapters {
+        path
+      }
+    }
   }
 `
 

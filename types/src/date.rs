@@ -47,7 +47,7 @@ impl Date {
     }
 }
 
-#[derive(async_graphql::InputObject)]
+#[derive(async_graphql::InputObject, Clone)]
 pub struct DateInput {
     day: u32,
     month: u32,

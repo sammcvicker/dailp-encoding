@@ -19,6 +19,7 @@ query AnnotatedDocument($slug: String!) {
     title
     slug
     isReference
+    genre
     date {
       year
     }
@@ -51,6 +52,7 @@ query AnnotatedDocumentById($id: UUID!) {
     title
     slug
     isReference
+    genre
     date {
       year
     }
@@ -127,6 +129,7 @@ fragment DocFormFields on AnnotatedDoc {
     month
     year
   }
+  genre
 }
 
 fragment FormFields on AnnotatedForm {
@@ -274,6 +277,7 @@ query DocumentDetails($slug: String!) {
     id
     slug
     title
+    genre
     date {
       year
     }
@@ -376,6 +380,7 @@ query CollectionChapter($collectionSlug: String!, $chapterSlug: String!) {
       title
       slug
       isReference
+      genre
       date {
         year
       }
@@ -517,6 +522,7 @@ mutation AddBookmark($documentId: UUID!) {
     title
     slug
     isReference
+    genre
     date {
       year
     }
@@ -596,7 +602,36 @@ mutation DeleteContributorAttribution(
 }
 
 mutation UpdateDocumentMetadata($document: DocumentMetadataUpdate!) {
-  updateDocumentMetadata(document: $document)
+  updateDocumentMetadata(document: $document) {
+    id
+    title
+    slug
+    isReference
+    genre
+    date {
+      year
+    }
+    bookmarkedOn {
+      formattedDate
+    }
+    sources {
+      name
+      link
+    }
+    audioRecording {
+      resourceUrl
+      startTime
+      endTime
+    }
+    translatedPages {
+      image {
+        url
+      }
+    }
+    chapters {
+      path
+    }
+  }
 }
 
 mutation PostComment($input: PostCommentInput!) {

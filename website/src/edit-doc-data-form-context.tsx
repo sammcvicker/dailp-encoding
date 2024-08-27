@@ -42,6 +42,7 @@ export const FormProvider = (props: { children: any }) => {
       // console.log(values.document["id"][0][0])
       // console.log(values.document["title"])
       // console.log(typeof values.document["date"])
+      // console.log(values.document["genre"])
       setIsEditing(false)
 
       runUpdate({
@@ -53,6 +54,7 @@ export const FormProvider = (props: { children: any }) => {
                 (values.document["date"] as unknown as Array<any>).length - 1
               ][0]
             : {},
+          genre: values.document["genre"],
         },
       })
     },

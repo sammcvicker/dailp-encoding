@@ -63,6 +63,10 @@ export const EditButton = () => {
 /** Displays a FormInput with its corresponding feature data from the Reakit form. */
 export const EditDocPanel = (props: { document?: Dailp.AnnotatedDoc }) => {
   let docData = props.document as unknown as Dailp.AnnotatedDoc
+  const [{ data }] = Dailp.useDocumentDetailsQuery({
+    variables: { slug: docData.slug! },
+  })
+  docData = data?.document as Dailp.AnnotatedDoc
   const { form } = useForm()
 
   if (!form || !form.values.document) {
@@ -90,6 +94,15 @@ export const EditDocPanel = (props: { document?: Dailp.AnnotatedDoc }) => {
     }
   }
 
+  const [title, setTitle] = useState(docData.title)
+  const handleTitleChange = (e: any) => {
+    setTitle(e.target.value)
+  }
+  const [genre, setGenre] = useState(docData.genre || "")
+  const handleGenreChange = (e: any) => {
+    setGenre(e.target.value)
+  }
+
   // Use form.push to update the form state manually
   useEffect(() => {
     form.push(["document", "id"], [docData.id.toString()]) // push manually
@@ -98,10 +111,11 @@ export const EditDocPanel = (props: { document?: Dailp.AnnotatedDoc }) => {
     } else {
       form.push(["document", "date"], [])
     }
-  }, [day, month, year])
+    // console.log(title)
+    // console.log(genre)
+  }, [day, month, year, title, genre])
 
   let userRole = useUserRole()
-
   return (
     <>
       {/* Display a label for the form input if it exists. */}
@@ -114,6 +128,8 @@ export const EditDocPanel = (props: { document?: Dailp.AnnotatedDoc }) => {
       <FormInput
         {...form}
         className={css.formInput}
+        value={title}
+        onChange={handleTitleChange}
         name={["document", "title"]}
         disabled={!(userRole == UserRole.Editor)}
       />
@@ -122,8 +138,24 @@ export const EditDocPanel = (props: { document?: Dailp.AnnotatedDoc }) => {
       <FormLabel
         {...form}
         className={css.formInputLabel}
+        name={"genre"}
+        label={"Genre"}
+      />
+      <FormInput
+        {...form}
+        className={css.formInput}
+        value={genre}
+        onChange={handleGenreChange}
+        name={["document", "genre"]}
+        disabled={!(userRole == UserRole.Editor)}
+      />
+      <p />
+
+      <FormLabel
+        {...form}
+        className={css.formInputLabel}
         name={"written_at"}
-        label={"Written At"}
+        label={"Date Authored"}
       />
       <div className={css.dateInputConatiner}>
         <DatePicker

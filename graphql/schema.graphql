@@ -515,6 +515,7 @@ input DocumentMetadataUpdate {
 	id: UUID!
 	title: String
 	writtenAt: DateInput
+	genre: String
 }
 
 type DocumentPage {
@@ -831,7 +832,7 @@ type Mutation {
 	Assumes user requesting mutation recoreded the audio
 	"""
 	attachAudioToWord(input: AttachAudioToWordInput!): AnnotatedForm!
-	updateDocumentMetadata(document: DocumentMetadataUpdate!): UUID!
+	updateDocumentMetadata(document: DocumentMetadataUpdate!): AnnotatedDoc!
 }
 
 """
@@ -955,7 +956,7 @@ type Query {
 	allCollections: [DocumentCollection!]!
 	collection(slug: String!): DocumentCollection!
 	"""
-	Retrieves a full document from its unique name.
+	Retrieves a full document from its unique name (the slug).
 	"""
 	document(slug: String!): AnnotatedDoc
 	"""

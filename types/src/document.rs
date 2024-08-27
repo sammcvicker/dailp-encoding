@@ -3,7 +3,7 @@ use crate::{
     Contributor, Database, Date, SourceAttribution, Translation, TranslationBlock,
 };
 
-use async_graphql::{dataloader::DataLoader, FieldResult, MaybeUndefined};
+use async_graphql::{dataloader::DataLoader, Context, FieldResult, MaybeUndefined};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -288,11 +288,24 @@ pub struct DeleteContributorAttribution {
 
 /// Used for updating document metadata.
 /// All fields except id are optional.
-#[derive(async_graphql::InputObject)]
+#[derive(async_graphql::InputObject, Clone)]
 pub struct DocumentMetadataUpdate {
     pub id: Uuid,
     pub title: MaybeUndefined<String>,
     pub written_at: MaybeUndefined<DateInput>,
+    pub genre: MaybeUndefined<String>,
+}
+
+impl DocumentMetadataUpdate {
+    /// The parent document this update data is going to be applied to
+    pub async fn full_document(&self, context: &Context<'_>) -> FieldResult<AnnotatedDoc> {
+        let document = context
+            .data::<DataLoader<Database>>()?
+            .load_one(DocumentId(self.id))
+            .await?
+            .expect("Expected document to be found");
+        Ok(document)
+    }
 }
 
 #[async_graphql::ComplexObject]

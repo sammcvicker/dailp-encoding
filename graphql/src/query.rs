@@ -117,7 +117,7 @@ impl Query {
             .await?)
     }
 
-    /// Retrieves a full document from its unique name.
+    /// Retrieves a full document from its unique name (the slug).
     pub async fn document(
         &self,
         context: &Context<'_>,
@@ -612,12 +612,16 @@ impl Mutation {
         &self,
         context: &Context<'_>,
         document: DocumentMetadataUpdate,
-    ) -> FieldResult<Uuid> {
-        Ok(context
+    ) -> FieldResult<AnnotatedDoc> {
+        let document_clone = document.clone();
+        context
             .data::<DataLoader<Database>>()?
             .loader()
             .update_document_metadata(document)
-            .await?)
+            .await?;
+
+        // We return the parent object, for GraphCache interop
+        return document_clone.full_document(context).await;
     }
 }
 

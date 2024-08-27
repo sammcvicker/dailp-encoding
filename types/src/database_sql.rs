@@ -285,13 +285,13 @@ impl Database {
                     title: item.title,
                     is_reference: item.is_reference,
                     date: item.written_at.map(Date::new),
+                    genre: item.genre,
                     audio_recording: None,
                     collection: None,
                     contributors: item
                         .contributors
                         .and_then(|x| serde_json::from_value(x).ok())
                         .unwrap_or_default(),
-                    genre: None,
                     order_index: 0,
                     page_images: None,
                     sources: Vec::new(),
@@ -424,13 +424,13 @@ impl Database {
                 title: item.title,
                 is_reference: item.is_reference,
                 date: item.written_at.map(Date::new),
+                genre: item.genre,
                 audio_recording: None,
                 collection: None,
                 contributors: item
                     .contributors
                     .and_then(|x| serde_json::from_value(x).ok())
                     .unwrap_or_default(),
-                genre: None,
                 order_index: 0,
                 page_images: None,
                 sources: Vec::new(),
@@ -689,12 +689,14 @@ impl Database {
 
     pub async fn update_document_metadata(&self, document: DocumentMetadataUpdate) -> Result<Uuid> {
         let title = document.title.into_vec();
+        let genre = document.genre.into_vec();
         let written_at: Option<Date> = document.written_at.value().map(Into::into);
 
         query_file!(
             "queries/update_document_metadata.sql",
             document.id,
             &title as _,
+            &genre as _,
             &written_at as _
         )
         .execute(&self.client)
@@ -1501,6 +1503,7 @@ impl Loader<DocumentId> for Database {
                     title: item.title,
                     is_reference: item.is_reference,
                     date: item.written_at.map(Date::new),
+                    genre: item.genre,
                     audio_recording: item.audio_url.map(|resource_url| AudioSlice {
                         slice_id: Some(AudioSliceId(item.audio_slice_id.unwrap().to_string())),
                         resource_url,
@@ -1530,7 +1533,6 @@ impl Loader<DocumentId> for Database {
                         .contributors
                         .and_then(|x| serde_json::from_value(x).ok())
                         .unwrap_or_default(),
-                    genre: None,
                     order_index: 0,
                     page_images: None,
                     sources: Vec::new(),
@@ -1566,6 +1568,7 @@ impl Loader<DocumentShortName> for Database {
                     title: item.title,
                     is_reference: item.is_reference,
                     date: item.written_at.map(Date::new),
+                    genre: item.genre,
                     audio_recording: item.audio_url.map(|resource_url| AudioSlice {
                         slice_id: Some(AudioSliceId(item.audio_slice_id.unwrap().to_string())),
                         resource_url,
@@ -1596,7 +1599,6 @@ impl Loader<DocumentShortName> for Database {
                         .contributors
                         .and_then(|x| serde_json::from_value(x).ok())
                         .unwrap_or_default(),
-                    genre: None,
                     order_index: 0,
                     page_images: None,
                     sources: Vec::new(),
