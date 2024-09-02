@@ -57,10 +57,12 @@ export const FormProvider = (props: { children: ReactNode }) => {
           role: segment.role,
         }))
 
+        console.log(values.word)
         runUpdate({
           word: {
             id: values.word["id"],
             source: values.word["source"],
+            romanizedSource: values.word["romanizedSource"],
             commentary: values.word["commentary"],
             segments: updatedSegments,
           },
