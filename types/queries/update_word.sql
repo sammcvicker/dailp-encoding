@@ -6,12 +6,12 @@ update word set
         end,
     simple_phonetics =
         case
-            when $3::text[] != '{}' then $3[1]
+            when $3::text[] != '{}' and $3[1] is not null then $3[1] 
             else simple_phonetics
         end,
     commentary =
         case
-            when $4::text[] != '{}' then $4[1]
+            when $4::text[] != '{}' and $4[1] is not null then $4[1]
             else commentary
         end
 where id = $1
